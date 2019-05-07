@@ -100,22 +100,22 @@ void A_times_v(arma::vec &w, const arma::vec & v, const arma::umat & Ped, const 
     s     = Ped(i, 1);
     d     = Ped(i, 2);
     if(s != 0){
-      q(s) = q(s) + 0.5*q(i);
+      q(s - 1) = q(s - 1) + 0.5*q(i);
     }
     if(d != 0){
-      q(d) = q(d) + 0.5*q(i);
+      q(d - 1) = q(d - 1) + 0.5*q(i);
     }
   }
   for(i = 0; i < n; i++){
     s     = Ped(i, 1);
     d     = Ped(i, 2);
-    di    = static_cast<double>(accu(find(Ped.row(i) == 0)) + 2)/4.0 - 0.25*(F(s) + F(d));
+    di    = static_cast<double>(std::count(Ped.row(i).begin(), Ped.row(i).end(), 0) + 2)/4.0 - 0.25*(F(s) + F(d));
     tmp   = 0.0;
     if(s != 0){
-      tmp = tmp + w(s);
+      tmp = tmp + w(s - 1);
     }
     if(d != 0){
-      tmp = tmp + w(d);
+      tmp = tmp + w(d - 1);
     }
     w(i)  = 0.5*tmp;
     w(i)  = w(i) + di*q(i);
@@ -129,9 +129,10 @@ arma::mat getA22(const arma::umat &Ped, const arma::uword nGen, const int n, con
   arma::vec w   = zeros(n, 1);
   arma::vec v   = zeros(n, 1);
   for(uword i = 0; i < nGen; i++){
+    v               = zeros(n, 1);
     v(GenID(i) - 1) = 1.0;
     A_times_v(w, v, Ped, F, n);
-    A22.col(i) = w(GenID - 1);
+    A22.col(i)      = w(GenID - 1);
   }
   return(A22);
 }
